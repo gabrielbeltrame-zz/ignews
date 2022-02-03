@@ -1,7 +1,28 @@
 import { NextApiRequest, NextApiResponse } from "next";
+import { Readable } from 'stream';
 
-export default (req: NextApiRequest, res: NextApiResponse) => {
-    console.log('evento recebido')
+async function buffer(readable: Readable) {
+    const chunks = [];
+
+    for await (const chunk of readable) {
+        chunks.push(
+            typeof chunk === 'string' ? Buffer.from(chunk) : chunk
+        );
+    }
+
+    return Buffer.concat(chunks);
+}
+
+export const config = {
+    api: {
+        bodyParser: false
+    }
+}
+
+export default async (req: NextApiRequest, res: NextApiResponse) => {
+    const buf = await buffer(req);
+
+    
 
     res.status(200).json({ok: true})
 }
